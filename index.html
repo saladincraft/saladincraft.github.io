@@ -4,37 +4,22 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
-		<!-- Blank-screen toggle: type "newman" anywhere to switch. State is saved in localStorage. -->
+		<!-- Panic key: type "hide" anywhere to instantly close the tab. -->
 		<script type="text/javascript">
 			(function() {
-				var KEY = "eagler_blank_mode";
-				var blank = false;
-				try { blank = localStorage.getItem(KEY) === "1"; } catch(e) {}
-				window.__blankMode = blank;
+				document.write(
+					'<meta name="description" content="Play minecraft 1.12 in your browser" />' +
+					'<meta name="keywords" content="eaglercraft, minecraft, 1.12, 1.12.2" />' +
+					'<title>EaglercraftX 1.12 WASM-GC</title>' +
+					'<meta property="og:locale" content="en-US" />' +
+					'<meta property="og:type" content="website" />' +
+					'<meta property="og:title" content="Clever" />' +
+					'<meta property="og:description" content="Play minecraft 1.12 in your browser" />' +
+					'<meta property="og:image" content="favicon." />' +
+					'<link rel="icon" type="image/png" href="/clever.png">' +
+					'<scr' + 'ipt type="text/javascript" src="bootstrap.js"></scr' + 'ipt>'
+				);
 
-				if(blank) {
-					// Blank mode: empty title, empty favicon, no meta tags, no game scripts
-					document.write(
-						'<title>Clever | Dashboard</title>' +
-						'<link rel="icon" type="image/png" href="/clever.png">' +
-						'<style>html,body{background:#fff !important;margin:0;width:100%;height:100%;overflow:hidden;}</style>'
-					);
-				} else {
-					document.write(
-						'<meta name="description" content="Play minecraft 1.12 in your browser" />' +
-						'<meta name="keywords" content="eaglercraft, minecraft, 1.12, 1.12.2" />' +
-						'<title>Clever</title>' +
-						'<meta property="og:locale" content="en-US" />' +
-						'<meta property="og:type" content="website" />' +
-						'<meta property="og:title" content="Clever" />' +
-						'<meta property="og:description" content="Play minecraft 1.12 in your browser" />' +
-						'<meta property="og:image" content="favicon." />' +
-						'<link rel="icon" type="image/png" href="/clever.png">' +
-						'<scr' + 'ipt type="text/javascript" src="bootstrap.js"></scr' + 'ipt>'
-					);
-				}
-
-				// Listen for the secret word
 				var secret = "hide";
 				var buffer = "";
 				window.addEventListener("keydown", function(e) {
@@ -42,28 +27,24 @@
 					buffer = (buffer + e.key.toLowerCase()).slice(-secret.length);
 					if(buffer === secret) {
 						buffer = "";
-						try {
-							if(window.__blankMode) localStorage.removeItem(KEY);
-							else localStorage.setItem(KEY, "1");
-						} catch(err) {}
 
-						// Kill any "Reload site?" prompt the game registered
+						// No "Leave site?" prompts
 						window.onbeforeunload = null;
 						window.addEventListener("beforeunload", function(ev) {
 							ev.stopImmediatePropagation();
 						}, true);
 
-						// Go white instantly so it feels immediate while the reload happens
-						if(!window.__blankMode) {
+						// Go white instantly
+						try {
 							document.documentElement.style.cssText = "background:#fff !important";
-							if(document.body) document.body.style.cssText = "background:#fff !important";
-							if(document.body) document.body.innerHTML = "";
+							if(document.body) { document.body.innerHTML = ""; document.body.style.cssText = "background:#fff !important"; }
 							document.title = " ";
-							var ic = document.querySelectorAll("link[rel*='icon']");
-							for(var i = 0; i < ic.length; i++) ic[i].parentNode.removeChild(ic[i]);
-						}
+						} catch(err) {}
 
-						window.location.reload();
+						// Close the tab. Browsers only allow this for tabs opened by a script/link,
+						// so if it's refused, fall back to a blank page right away.
+						window.close();
+						window.location.replace("about:blank");
 					}
 				}, true);
 			})();
@@ -72,9 +53,6 @@
 		<script type="text/javascript">
 			"use strict";
 			window.addEventListener("load", function() {
-				// In blank mode, do nothing at all
-				if(window.__blankMode) return;
-
 				if(window.location.href.indexOf("file:") === 0) {
 					alert("HTTP please, do not open this file locally, run a local HTTP server and load it via HTTP");
 				}else {
@@ -89,8 +67,7 @@
 						worldsDB: "worlds",
 						servers: [
 							{ addr: "wss://prysm.lol", name: "Prysm Server 1" },
-														{ addr: "wss://server.mexi.lol", name: "Prysm Server 2" }
-
+							{ addr: "wss://server.mexi.lol", name: "Prysm Server 2" }
 						],
 						relays: [
 							{ addr: "wss://relay.deev.is/", comment: "lax1dude relay #1", primary: relayId == 0 },
